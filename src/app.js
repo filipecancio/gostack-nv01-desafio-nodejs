@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { uuid } = require("uuidv4");
+const { uuid, isUuid } = require("uuidv4");
 
 // const { uuid } = require("uuidv4");
 
@@ -24,10 +24,13 @@ app.post("/repositories", (request, response) => {
 
 app.put("/repositories/:id", (request, response) => {
   const {id} = request.params;
+  if(!isUuid(id)){
+    return response.status(400).send();
+  }
   const index = repositories.findIndex(i =>  i.id == id );
 
   if(index<0){
-    response.status(400);
+    return response.status(400).send();
   }
   
   let { title , url , techs } = request.body;
@@ -41,22 +44,31 @@ app.put("/repositories/:id", (request, response) => {
 
 app.delete("/repositories/:id", (request, response) => {
   const {id} = request.params;
-  const index = repositories.findIndex(i =>  i.id == id );
-
-  if(index<0){
-    response.status(400);
+  if(!isUuid(id)){
+    return response.status(400).send();
   }
 
-  const project = repositories.splice(index,1);
-  return response.status(204);
+  const index = repositories.findIndex(i =>  i.id === id );
+
+  if(index < 0){
+    return response.status(400).send();
+  }
+    repositories.splice(index,1);
+    return response.status(204).send();
+
+
+  
 });
 
 app.post("/repositories/:id/like", (request, response) => {
   const {id} = request.params;
+  if(!isUuid(id)){
+    return response.status(400).send();
+  }
   const index = repositories.findIndex(i =>  i.id == id );
 
   if(index<0){
-    response.status(400);
+    return response.status(400).send();
   }
 
   repositories[index].likes += 1;
